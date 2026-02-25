@@ -2,14 +2,6 @@
 
 This repository contains a **Deep Learning project** that implements a **Convolutional Neural Network (CNN)** using **TensorFlow/Keras** to classify images of **cats 🐱 and dogs 🐶**.
 
-The project covers the full pipeline:
-
-- Data preprocessing  
-- Model building  
-- Training  
-- Evaluation  
-- Single image prediction  
-
 ---
 
 ## 📌 Project Overview
