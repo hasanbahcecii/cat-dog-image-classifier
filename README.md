@@ -1,5 +1,7 @@
 # 🐾 Cat vs Dog Image Classifier — Transfer Learning with MobileNetV2
 
+🌐 **[Live Demo — Streamlit](https://hasanbahcecii-cat-dog-image-classifier-app-gtgtuq.streamlit.app)**
+
 A binary image classification system built with TensorFlow/Keras, using **transfer learning from MobileNetV2** (ImageNet pre-trained) with 2-phase training and data augmentation.
 
 ---
@@ -21,17 +23,17 @@ A binary image classification system built with TensorFlow/Keras, using **transf
 
 ```
 Input (224×224×3)
-      ↓
+        ↓
 MobileNetV2 (ImageNet pre-trained, frozen in Phase 1)
-      ↓
+        ↓
 GlobalAveragePooling2D
-      ↓
+        ↓
 Dropout(0.3)
-      ↓
+        ↓
 Dense(128, ReLU)
-      ↓
+        ↓
 Dropout(0.2)
-      ↓
+        ↓
 Dense(1, Sigmoid) → cat / dog
 ```
 
@@ -55,10 +57,12 @@ Dense(1, Sigmoid) → cat / dog
 ```
 cat-dog-image-classifier-cnn/
 │
-├── cnn.py                  # Original from-scratch CNN (baseline)
-├── train_transfer.py       # Transfer learning model (MobileNetV2)
+├── convolutional_neural_network.py   # Baseline CNN (from scratch)
+├── train_transfer.py                 # Transfer learning — MobileNetV2
+├── app.py                            # Streamlit web interface
 │
-├── model_final.keras       # Saved best model
+├── model_final.keras                 # Saved Keras model
+├── model_final.onnx                  # ONNX export (used by Streamlit app)
 ├── requirements.txt
 └── README.md
 ```
@@ -106,20 +110,26 @@ python train_transfer.py
 
 **Run baseline CNN (from scratch):**
 ```bash
-python cnn.py
+python convolutional_neural_network.py
+```
+
+**Run Streamlit web interface (local):**
+```bash
+streamlit run app.py
 ```
 
 **Single prediction:**
 ```python
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.preprocessing import image
+import onnxruntime as ort
+from PIL import Image
 
-model = tf.keras.models.load_model('model_final.keras')
-img = image.load_img('your_image.jpg', target_size=(224, 224))
-x = image.img_to_array(img) / 255.0
-x = np.expand_dims(x, axis=0)
-prob = model.predict(x, verbose=0)[0][0]
+sess = ort.InferenceSession('model_final.onnx')
+input_name = sess.get_inputs()[0].name
+
+img = Image.open('your_image.jpg').convert('RGB').resize((224, 224))
+x = np.expand_dims(np.array(img) / 255.0, axis=0).astype(np.float32)
+prob = sess.run(None, {input_name: x})[0][0][0]
 print("dog" if prob > 0.5 else "cat", f"({max(prob, 1-prob)*100:.1f}%)")
 ```
 
@@ -146,6 +156,8 @@ ImageDataGenerator(
 |---|---|
 | Framework | TensorFlow / Keras |
 | Base Model | MobileNetV2 (ImageNet) |
+| Inference (deploy) | ONNX Runtime |
+| Web Interface | Streamlit |
 | Augmentation | Keras ImageDataGenerator |
 | Regularization | Dropout, EarlyStopping |
 | Optimizer | Adam (Phase 1) / Adam lr=1e-5 (Phase 2) |
