@@ -1,0 +1,30 @@
+# Virtual environments
+venv/
+.venv/
+
+# Python cache & compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs & temp files
+*.log
+*.tmp
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Dataset & model outputs (opsiyonel, büyük dosyaları dışarıda tutmak için)
+data/
+datasets/
+models/
+checkpoints/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
