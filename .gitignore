@@ -17,6 +17,7 @@ __pycache__/
 
 # Dataset & model outputs (opsiyonel, büyük dosyaları dışarıda tutmak için)
 data/
+dataset/
 datasets/
 models/
 checkpoints/
