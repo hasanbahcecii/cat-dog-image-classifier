@@ -1,16 +1,15 @@
 import streamlit as st
-import tensorflow as tf
+import onnxruntime as ort
 import numpy as np
 from PIL import Image
 
-# ── Model ─────────────────────────────────────────────────────
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model('model_final.keras')
+    return ort.InferenceSession('model_final.onnx')
 
-model = load_model()
+sess = load_model()
+input_name = sess.get_inputs()[0].name
 
-# ── UI ────────────────────────────────────────────────────────
 st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾")
 st.title("🐾 Cat vs Dog Classifier")
 st.markdown("**MobileNetV2 Transfer Learning — 98.70% Test Accuracy**")
@@ -19,11 +18,11 @@ st.divider()
 uploaded = st.file_uploader("Upload an image (jpg/png)", type=["jpg","jpeg","png"])
 
 if uploaded:
-    img = Image.open(uploaded).convert("RGB").resize((224, 224))
-    x = np.array(img) / 255.0
-    x = np.expand_dims(x, axis=0)
+    img = Image.open(uploaded).convert("RGB")
+    x = np.array(img.resize((224, 224))) / 255.0
+    x = np.expand_dims(x.astype(np.float32), axis=0)
 
-    prob = model.predict(x, verbose=0)[0][0]
+    prob = sess.run(None, {input_name: x})[0][0][0]
     label = "🐶 Dog" if prob > 0.5 else "🐱 Cat"
     conf  = max(prob, 1 - prob) * 100
 
